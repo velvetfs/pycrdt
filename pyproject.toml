@@ -3,8 +3,8 @@ requires = ["maturin>=1.4.0,<2"]
 build-backend = "maturin"
 
 [project]
-name = "pycrdt"
-description = "Python bindings for Yrs"
+name = "pycrdt-xml"
+description = "Python bindings for Yrs with XML"
 license = { file = "LICENSE" }
 authors = [
     { name = "David Brochart", email = "david.brochart@gmail.com" },
