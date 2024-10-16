@@ -1,10 +1,10 @@
 [package]
-name = "pycrdt"
-version = "0.9.11"
+name = "pycrdt_xml"
+version = "0.9.12"
 edition = "2021"
 
 [lib]
-name = "pycrdt"
+name = "pycrdt_xml"
 crate-type = ["cdylib"]
 
 [dependencies]

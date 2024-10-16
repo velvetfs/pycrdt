@@ -3,4 +3,3 @@ __pycache__/
 *.so
 Cargo.lock
 .coverage
-Setup.py
