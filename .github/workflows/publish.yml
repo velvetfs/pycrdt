@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PACKAGE_NAME: pycrdt
+  PACKAGE_NAME: pycrdt-xml
 
 jobs:
   macos:
@@ -32,7 +32,7 @@ jobs:
       - name: Test built wheel - universal2
         run: |
           pip install pytest "pydantic>=2.5.2,<3" "anyio>=4.4.0,<5" "trio>=0.25.1,<0.26" "exceptiongroup; python_version<'3.11'"
-          pip install pycrdt --no-deps --no-index --find-links dist --force-reinstall
+          pip install pycrdt-xml --no-deps --no-index --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -65,7 +65,7 @@ jobs:
       - name: Test built wheel
         run: |
           pip install pytest "pydantic>=2.5.2,<3" "anyio>=4.4.0,<5" "trio>=0.25.1,<0.26" "exceptiongroup; python_version<'3.11'"
-          pip install pycrdt --no-deps --no-index --find-links dist --force-reinstall
+          pip install pycrdt-xml --no-deps --no-index --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -101,7 +101,7 @@ jobs:
         if: matrix.target == 'x86_64'
         run: |
           pip install pytest "pydantic>=2.5.2,<3" "anyio>=4.4.0,<5" "trio>=0.25.1,<0.26" "exceptiongroup; python_version<'3.11'"
-          pip install pycrdt --no-deps --no-index --find-links dist --force-reinstall
+          pip install pycrdt-xml --no-deps --no-index --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -139,7 +139,7 @@ jobs:
             apt-get install -y --no-install-recommends python3 python3-pip
             pip3 install -U pip pytest "pydantic>=2.5.2,<3" "anyio>=4.4.0,<5" "trio>=0.25.1,<0.26" "exceptiongroup; python_version<'3.11'"
           run: |
-            pip3 install pycrdt --no-deps --no-index --find-links dist/ --force-reinstall
+            pip3 install pycrdt-xml --no-deps --no-index --find-links dist/ --force-reinstall
             pytest
 
       - name: Upload wheels
