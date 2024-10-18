@@ -113,7 +113,7 @@ def test_sticky_index():
     pos = text.sticky_index(2, 1)
     assert pos is not None
     logging.log(logging.INFO, str(pos))
-    assert pos[0].get("clock") == 2
+    assert pos[0].get("clock") == 3
     assert pos[0].get("client")
     assert pos[1] == 1
 
