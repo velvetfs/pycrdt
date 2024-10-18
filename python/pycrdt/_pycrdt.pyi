@@ -276,6 +276,8 @@ class XmlElement:
         and its nested elements.
         Returns a subscription that can be used to unsubscribe."""
 
+    def sticky_index(self, txn: Transaction, index: int, assoc: int) -> tuple[int, int] | None:
+        """Returns a tuple of (index, assoc) that can be used to create a StickyIndex."""
 class XmlText:
     def parent(self) -> XmlFragment | XmlElement | XmlText | None:
         ...
@@ -318,6 +320,10 @@ class XmlText:
         """Subscribes a callback to be called with the xml change event
         and its nested elements.
         Returns a subscription that can be used to unsubscribe."""
+
+
+    def sticky_index(self, txn: Transaction, index: int, assoc: int) -> tuple[int, int] | None:
+        """Returns a tuple of (index, assoc) that can be used to create a StickyIndex."""
 
 class UndoManager:
     """Undo manager."""

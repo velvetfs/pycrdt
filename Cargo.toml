@@ -1,6 +1,6 @@
 [package]
 name = "pycrdt_xml"
-version = "0.10.3"
+version = "0.10.4"
 edition = "2021"
 
 [lib]
@@ -9,6 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 yrs = "0.21.2"
+serde = { version = "1.0.210", features = ["derive"] }
 
 [dependencies.pyo3]
 version = "0.22.2"

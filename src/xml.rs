@@ -1,11 +1,8 @@
-
 use pyo3::types::{PyAnyMethods, PyDict, PyIterator, PyList, PyString, PyTuple};
-use pyo3::{pyclass, pymethods, Bound, IntoPy as _, PyObject, PyResult, Python};
+use pyo3::{pyclass, pymethods, Bound, IntoPy, PyObject, PyResult, Python};
 use yrs::types::text::YChange;
 use yrs::types::xml::{XmlEvent as _XmlEvent, XmlTextEvent as _XmlTextEvent};
-use yrs::{
-    DeepObservable, GetString as _, Observable as _, Text as _, TransactionMut, Xml as _, XmlElementPrelim, XmlElementRef, XmlFragment as _, XmlFragmentRef, XmlOut, XmlTextPrelim, XmlTextRef
-};
+use yrs::{Assoc, DeepObservable, GetString as _, IndexedSequence, Observable as _, StickyIndex, Text as _, TransactionMut, Xml as _, XmlElementPrelim, XmlElementRef, XmlFragment as _, XmlFragmentRef, XmlOut, XmlTextPrelim, XmlTextRef, ID};
 
 use crate::subscription::Subscription;
 use crate::type_conversions::{events_into_py, py_to_attrs, EntryChangeWrapper};
@@ -153,6 +150,7 @@ impl_xml_methods!(XmlFragment[fragment, fragment: fragment] {
             })
         }).into()
     }
+
 });
 
 #[pyclass(eq, frozen, hash)]
@@ -193,7 +191,57 @@ impl_xml_methods!(XmlElement[element, fragment: element, xml: element] {
             })
         }).into()
     }
+
+    fn sticky_index(&self, py: Python<'_>, txn: &mut Transaction, index: u32, assoc: u32) -> Option<PyObject> {
+        let mut t0 = txn.transaction();
+        let t1 = t0.as_mut().unwrap();
+        let t: &mut TransactionMut = t1.as_mut();
+        let assoc = match assoc {
+            0 => Assoc::Before,
+            1 => Assoc::After,
+            _ => return None,
+        };
+
+        self.element.sticky_index(t, index, assoc)
+            .map(|sticky_index| StickyIndexWrapper(&sticky_index).into_py(py))
+
+
+    }
+
 });
+
+pub struct IdWrapper<'a>(pub &'a ID);
+
+impl<'a> IntoPy<PyObject> for IdWrapper<'a> {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        let client = self.0.client.into_py(py);
+        let clock = self.0.clock.into_py(py);
+        let dict = PyDict::new_bound(py);
+        dict.set_item("client", client).unwrap();
+        dict.set_item("clock", clock).unwrap();
+
+        dict.into()
+    }
+}
+
+pub struct StickyIndexWrapper<'a>(pub &'a StickyIndex);
+
+impl<'a> IntoPy<PyObject> for StickyIndexWrapper<'a> {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        let assoc = match self.0.assoc {
+            Assoc::Before => 0,
+            Assoc::After => 1,
+        };
+        let assoc = assoc.into_py(py);
+        let id = self.0.id().clone();
+        if id.is_none() {
+            return PyTuple::new_bound(py, &[assoc]).into();
+        }
+        let id = id.unwrap();
+
+        PyTuple::new_bound(py, &[IdWrapper(&id).into_py(py), assoc]).into()
+    }
+}
 
 #[pyclass(eq, frozen, hash)]
 #[derive(PartialEq, Eq)]
@@ -206,6 +254,8 @@ impl From<XmlTextRef> for XmlText {
         XmlText { text: value }
     }
 }
+
+
 
 impl_xml_methods!(XmlText[text, xml: text] {
     #[pyo3(signature = (txn, index, text, attrs=None))]
@@ -280,6 +330,21 @@ impl_xml_methods!(XmlText[text, xml: text] {
     fn observe_deep(&self, f: PyObject) -> Subscription {
         self.observe(f)
     }
+
+
+    fn sticky_index(&self, py: Python<'_>, txn: &mut Transaction, index: u32, assoc: u32) -> Option<PyObject> {
+        let mut t0 = txn.transaction();
+        let t1 = t0.as_mut().unwrap();
+        let t: &mut TransactionMut = t1.as_mut();
+        let assoc = match assoc {
+            0 => Assoc::Before,
+            1 => Assoc::After,
+            _ => return None,
+        };
+
+        self.text.sticky_index(t, index, assoc)
+            .map(|sticky_index| StickyIndexWrapper(&sticky_index).into_py(py))
+    }
 });
 
 
@@ -312,7 +377,7 @@ impl XmlEvent {
                 py,
                 event.delta(txn).into_iter().map(|d| d.into_py(py)),
             )
-            .into(),
+                .into(),
             keys: {
                 let dict = PyDict::new_bound(py);
                 for (key, value) in event.keys(txn).iter() {
@@ -334,7 +399,7 @@ impl XmlEvent {
                 py,
                 event.delta(txn).into_iter().map(|d| d.clone().into_py(py)),
             )
-            .into(),
+                .into(),
             keys: {
                 let dict = PyDict::new_bound(py);
                 for (key, value) in event.keys(txn).iter() {

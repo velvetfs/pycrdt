@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Iterator, overload
 
 from ._base import BaseEvent, BaseType, base_types, event_types
-from ._pycrdt import XmlFragment as _XmlFragment
+from ._pycrdt import XmlFragment as _XmlFragment, Transaction
 from ._pycrdt import XmlElement as _XmlElement
 from ._pycrdt import XmlText as _XmlText
 from ._pycrdt import XmlEvent as _XmlEvent
@@ -146,6 +146,10 @@ class XmlElement(_XmlFragmentTraitMixin, _XmlTraitMixin):
     def _get_or_insert(self, _name: str, _doc: Doc) -> Any:
         raise ValueError("Cannot get an XmlElement from a doc - get an XmlFragment instead.")
 
+    def sticky_index(self, index: int, assoc: int) -> tuple[int, int] | None:
+        with self.doc.transaction() as txn:
+            return self.integrated.sticky_index(txn._txn, index, assoc)
+
     def _init(self, value: tuple[str, list[tuple[str, str]], list[str | XmlElement | XmlText]] | None):
         if value is None:
             return
@@ -235,6 +239,10 @@ class XmlText(_XmlTraitMixin):
                     self.integrated.remove_range(txn._txn, start, length)
             else:
                 raise RuntimeError(f"Index not supported: {key}")
+
+    def sticky_index(self, index: int, assoc: int) -> tuple[int, int] | None:
+        with self.doc.transaction() as txn:
+            return self.integrated.sticky_index(txn._txn, index, assoc)
 
     def clear(self) -> None:
         """Remove the entire range of characters."""

@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module version="4">
-  <component name="PyDocumentationSettings">
-    <option name="format" value="PLAIN" />
-    <option name="myDocStringFormat" value="Plain" />
+<module type="EMPTY_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Python" name="Python facet">
+      <configuration sdkName="Python 3.9 (pycrdt)" />
+    </facet>
   </component>
-  <component name="TestRunnerService">
-    <option name="PROJECT_TEST_RUNNER" value="py.test" />
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/python/pycrdt/__pycache__" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/tests/__pycache__" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Python 3.9 (pycrdt) interpreter library" level="application" />
   </component>
 </module>

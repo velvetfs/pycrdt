@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from pycrdt import Doc, XmlFragment, XmlText, XmlElement
 
@@ -59,6 +61,7 @@ def test_api():
     assert str(frag) == "Hello <em class=\"bold\">World</em>!"
 
 
+
 def test_observe():
     doc = Doc()
     doc["test"] = fragment = XmlFragment(["Hello world!"])
@@ -94,3 +97,25 @@ def test_observe():
     assert str(events[0][0].target) == "H<bold>el</bold>lo world!"
     assert events[0][0].delta[0] == {"retain": 1}
     assert events[0][0].delta[1] == {"retain": 2, "attributes": {"bold": True}}
+
+
+def test_sticky_index():
+    doc = Doc()
+    doc["test"] = fragment = XmlFragment(["Hello world!"])
+    text = fragment.children[0]
+    pos = text.sticky_index(1, 0)
+    assert pos is not None
+    logging.log(logging.INFO, str(pos))
+    assert pos[0].get("clock") == 1
+    assert pos[0].get("client")
+    assert pos[1] == 0
+
+    pos = text.sticky_index(2, 1)
+    assert pos is not None
+    logging.log(logging.INFO, str(pos))
+    assert pos[0].get("clock") == 2
+    assert pos[0].get("client")
+    assert pos[1] == 1
+
+
+
