@@ -5,9 +5,10 @@ use pyo3::{pyclass, pymethods, Bound, PyAny, PyObject, PyResult, Python};
 use yrs::types::text::YChange;
 use yrs::types::xml::{XmlEvent as _XmlEvent, XmlTextEvent as _XmlTextEvent};
 use yrs::{
-    DeepObservable, GetString as _, Observable as _, Text as _, TransactionMut, Xml as _, XmlElementPrelim, XmlElementRef, XmlFragment as _, XmlFragmentRef, XmlOut, XmlTextPrelim, XmlTextRef
+    Assoc, DeepObservable, GetString as _, IndexedSequence, Observable as _, Text as _, TransactionMut, Xml as _, XmlElementPrelim, XmlElementRef, XmlFragment as _, XmlFragmentRef, XmlOut, XmlTextPrelim, XmlTextRef
 };
 
+use crate::sticky_index::StickyIndex;
 use crate::subscription::Subscription;
 use crate::type_conversions::{events_into_py, py_to_any, py_to_attrs, EntryChangeWrapper, ToPython};
 use crate::transaction::Transaction;
@@ -202,6 +203,24 @@ impl_xml_methods!(XmlElement[element, fragment: element, xml: element] {
             })
         }).into()
     }
+
+    fn sticky_index<'py>(&self, py: Python<'py>, txn: &mut Transaction, index: u32, assoc: i8) -> PyResult<Py<StickyIndex>> {
+        let mut _t = txn.transaction();
+        let t = _t.as_mut().unwrap().as_mut();
+        let _assoc: Assoc;
+        match assoc {
+            0 => _assoc = Assoc::After,
+            _ => _assoc = Assoc::Before,
+        }
+        let sticky_index = self.element.sticky_index(t, index, _assoc);
+        match sticky_index {
+            Some(si) => {
+                let s: Py<StickyIndex> = Py::new(py, StickyIndex::from(Some(si)))?;
+                Ok(s)
+            }
+            None => Err(pyo3::exceptions::PyIndexError::new_err("Index out of bounds"))
+        }
+    }
 });
 
 #[pyclass(eq, frozen, hash)]
@@ -302,6 +321,24 @@ impl_xml_methods!(XmlText[text, xml: text] {
 
     fn observe_deep(&self, f: PyObject) -> Subscription {
         self.observe(f)
+    }
+
+    fn sticky_index<'py>(&self, py: Python<'py>, txn: &mut Transaction, index: u32, assoc: i8) -> PyResult<Py<StickyIndex>> {
+        let mut _t = txn.transaction();
+        let t = _t.as_mut().unwrap().as_mut();
+        let _assoc: Assoc;
+        match assoc {
+            0 => _assoc = Assoc::After,
+            _ => _assoc = Assoc::Before,
+        }
+        let sticky_index = self.text.sticky_index(t, index, _assoc);
+        match sticky_index {
+            Some(si) => {
+                let s: Py<StickyIndex> = Py::new(py, StickyIndex::from(Some(si)))?;
+                Ok(s)
+            }
+            None => Err(pyo3::exceptions::PyIndexError::new_err("Index out of bounds"))
+        }
     }
 });
 

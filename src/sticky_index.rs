@@ -14,8 +14,13 @@ pub struct StickyIndex {
 
 impl From<Option<_StickyIndex>> for StickyIndex {
     fn from(sticky_index: Option<_StickyIndex>) -> Self {
-        let s: _StickyIndex = unsafe {std::mem::transmute(sticky_index.clone())};
-        StickyIndex { sticky_index: RefCell::from(Some(s)), assoc: sticky_index.unwrap().assoc }
+        match sticky_index {
+            Some(si) => {
+                let s: _StickyIndex = unsafe {std::mem::transmute(si.clone())};
+                StickyIndex { sticky_index: RefCell::from(Some(s)), assoc: si.assoc }
+            }
+            None => panic!("Cannot create sticky index at invalid position")
+        }
     }
 }
 

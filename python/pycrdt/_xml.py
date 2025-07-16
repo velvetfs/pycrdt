@@ -7,6 +7,7 @@ from ._pycrdt import XmlElement as _XmlElement
 from ._pycrdt import XmlEvent as _XmlEvent
 from ._pycrdt import XmlFragment as _XmlFragment
 from ._pycrdt import XmlText as _XmlText
+from ._sticky_index import Assoc, StickyIndex
 
 if TYPE_CHECKING:
     from typing import Any, Iterable, Mapping, Sized, TypeVar
@@ -189,6 +190,22 @@ class XmlElement(_XmlFragmentTraitMixin, _XmlTraitMixin):
         """The element's tag, if any."""
         return self.integrated.tag()
 
+    def sticky_index(self, index: int, assoc: Assoc = Assoc.AFTER) -> StickyIndex:
+        """
+        A permanent position that sticks to the same place even when
+        concurrent updates are made.
+
+        Args:
+            index: The index at which to stick.
+            assoc: The [Assoc][pycrdt.Assoc] specifying whether to stick to the location
+                before or after the index.
+
+        Returns:
+            A [StickyIndex][pycrdt.StickyIndex] that can be used to retrieve the index after
+            an update was applied.
+        """
+        return StickyIndex.new(self, index, assoc)
+
 
 class XmlText(_XmlTraitMixin):
     """
@@ -305,6 +322,22 @@ class XmlText(_XmlTraitMixin):
                     self.integrated.remove_range(txn._txn, start, length)
             else:
                 raise TypeError(f"Index not supported: {key}")
+
+    def sticky_index(self, index: int, assoc: Assoc = Assoc.AFTER) -> StickyIndex:
+        """
+        A permanent position that sticks to the same place even when
+        concurrent updates are made.
+
+        Args:
+            index: The index at which to stick.
+            assoc: The [Assoc][pycrdt.Assoc] specifying whether to stick to the location
+                before or after the index.
+
+        Returns:
+            A [StickyIndex][pycrdt.StickyIndex] that can be used to retrieve the index after
+            an update was applied.
+        """
+        return StickyIndex.new(self, index, assoc)
 
     def clear(self) -> None:
         """Removes the entire range of characters."""

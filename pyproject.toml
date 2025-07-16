@@ -3,16 +3,20 @@ requires = ["maturin>=1.8.2,<2"]
 build-backend = "maturin"
 
 [project]
-name = "pycrdt"
+name = "pycrdt-sticky-xml"
 dynamic = ["version"]
-description = "Python bindings for Yrs"
+description = "Python bindings for Yrs with sticky_index support for XML types"
 license = { file = "LICENSE" }
 authors = [
     { name = "David Brochart", email = "david.brochart@gmail.com" },
+    { name = "Joshua Lawrence", email = "josh@velvetfs.com" },
 ]
 readme = "README.md"
 keywords = [
     "crdt",
+    "xml",
+    "sticky-index",
+    "collaborative-editing",
 ]
 requires-python = ">=3.9"
 classifiers = [
@@ -28,6 +32,8 @@ classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Text Processing :: Markup :: XML",
 ]
 
 dependencies = [
@@ -54,12 +60,14 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/y-crdt/pycrdt"
+Homepage = "https://github.com/yourusername/pycrdt-sticky-xml"
+"Original Project" = "https://github.com/y-crdt/pycrdt"
+"Bug Tracker" = "https://github.com/yourusername/pycrdt-sticky-xml/issues"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-source = "python"
-module-name = "pycrdt._pycrdt"
+module-name = "pycrdt_sticky_xml._pycrdt"
 
 [tool.ruff]
 exclude = ["tests/test_types.py"]

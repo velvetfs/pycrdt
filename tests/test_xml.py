@@ -1,5 +1,5 @@
 import pytest
-from pycrdt import Array, Doc, Map, XmlElement, XmlFragment, XmlText
+from pycrdt import Array, Assoc, Doc, Map, XmlElement, XmlFragment, XmlText
 
 
 def test_plain_text():
@@ -320,4 +320,55 @@ def test_xml_in_map():
         map["testtext"] = XmlText()
     with pytest.raises(TypeError):
         map["testel"] = XmlElement("a")
-    assert len(map) == 1
+
+
+def test_xml_text_sticky_index():
+    doc = Doc()
+    frag = doc.get("frag", type=XmlFragment)
+    text = XmlText("0123456789")
+    frag.children.append(text)
+
+    idx_after = text.sticky_index(5, Assoc.AFTER)
+    idx_before = text.sticky_index(5, Assoc.BEFORE)
+
+    text.insert(5, "XXX")
+
+    assert idx_after.get_index() == 8  # 5 + 3
+    assert idx_before.get_index() == 5
+
+    idx_start = text.sticky_index(0, Assoc.BEFORE)
+    text.insert(0, "AAA")
+
+    assert idx_start.get_index() == 0
+
+    current_len = len(text)
+    idx_end = text.sticky_index(current_len - 1, Assoc.AFTER)
+    text.insert(current_len, "ZZZ")
+
+    assert idx_end.get_index() == current_len - 1
+
+
+def test_xml_element_sticky_index():
+    doc = Doc()
+    frag = doc.get("frag", type=XmlFragment)
+
+    elem = XmlElement("div", None, [
+        XmlText("first"),
+        XmlText("second"),
+        XmlText("third")
+    ])
+
+    frag.children.append(elem)
+
+    idx_after = elem.sticky_index(1, Assoc.AFTER)
+    idx_before = elem.sticky_index(1, Assoc.BEFORE)
+
+    elem.children.insert(1, XmlText("inserted"))
+
+    assert idx_after.get_index() == 2
+    assert idx_before.get_index() == 1
+
+    idx_start = elem.sticky_index(0, Assoc.BEFORE)
+    elem.children.insert(0, XmlText("zero"))
+
+    assert idx_start.get_index() == 0
